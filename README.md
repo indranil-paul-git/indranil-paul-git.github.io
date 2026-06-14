@@ -145,6 +145,15 @@ Pushes to the `main` or `master` branches automatically compile and deploy the s
 - **Workflow definition**: `.github/workflows/deploy.yml`
 - **Manual trigger**: Run the **Deploy to GitHub Pages** workflow under the repository's **Actions** tab on GitHub.
 
+### Commit Conventions (Best Practices)
+To keep the site's history and deployment logs clean, use the following prefixes in your commit messages:
+
+*   **`feat:`** (New Content) – When creating a new article or folder (e.g., `feat: add go concurrency guide`).
+*   **`fix:`** (Bug Fixes) – When fixing layout glitches, broken links, or content typos (e.g., `fix: correct link in python decorators`).
+*   **`docs:`** (Documentation) – When editing this README or setup guides (e.g., `docs: update domain guide`).
+*   **`chore:`** (Maintenance) – When reorganizing directory files, changing `_meta.yml` sort parameters, or updating project metadata (e.g., `chore: update homelab metadata sorting`).
+*   **`ci:`** (CI/CD Pipelines) – When changing deploy scripts or GitHub Actions parameters (e.g., `ci: force node 24 in deploy.yml`).
+
 ---
 
 ## Custom Domain Configuration
