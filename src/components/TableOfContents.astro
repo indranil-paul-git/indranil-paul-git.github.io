@@ -1,0 +1,142 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+// Filter to only include h2 and h3 elements for clean presentation
+const filteredHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+<aside class="app-toc" aria-label="Table of Contents">
+  <div class="toc-title">ON THIS PAGE</div>
+  <ul class="toc-list">
+    {filteredHeadings.map(h => (
+      <li class={`toc-item toc-depth-${h.depth}`}>
+        <a href={`#${h.slug}`} class="toc-link" data-slug={h.slug}>
+          {h.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</aside>
+
+<style>
+  .app-toc {
+    width: var(--toc-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    height: fit-content;
+    max-height: calc(100vh - var(--header-height) - 4rem);
+    overflow-y: auto;
+    padding-left: 1rem;
+    border-left: 1px solid var(--glass-border);
+    pointer-events: auto;
+  }
+
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .toc-item {
+    list-style: none;
+  }
+
+  .toc-depth-3 {
+    padding-left: 1rem;
+  }
+
+  .toc-link {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block;
+    line-height: 1.4;
+    transition: color var(--transition-fast);
+    border-left: 2px solid transparent;
+    padding-left: 0.5rem;
+    margin-left: -2px;
+  }
+
+  .toc-link:hover {
+    color: var(--text-primary);
+  }
+
+  .toc-link.active {
+    color: var(--text-primary);
+    border-left-color: var(--toc-border-active);
+    font-weight: 500;
+    text-shadow: 0 0 6px var(--toc-active-glow);
+  }
+</style>
+
+<script>
+  // Scroll spy - targets .app-scroll-container (the actual scrolling element)
+  const scrollContainer = document.querySelector('.app-scroll-container') as HTMLElement | null;
+  const headingElements = document.querySelectorAll('.markdown-content h2, .markdown-content h3');
+  const tocLinks = document.querySelectorAll('.toc-link');
+
+  if (scrollContainer && headingElements.length > 0 && tocLinks.length > 0) {
+    let activeSlug = '';
+
+    const updateActiveHeading = () => {
+      tocLinks.forEach(link => {
+        const slug = link.getAttribute('data-slug');
+        if (slug === activeSlug) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    };
+
+    const syncActiveHeading = () => {
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const triggerOffset = 120;
+      let currentHeadingId = '';
+
+      // Pass 1: Find the last heading that has scrolled past the trigger line
+      // Do NOT break early — check every heading so the last one past the line wins
+      for (let i = 0; i < headingElements.length; i++) {
+        const h = headingElements[i] as HTMLElement;
+        const headingTop = h.getBoundingClientRect().top - containerRect.top;
+        if (headingTop <= triggerOffset) {
+          currentHeadingId = h.id;
+        }
+      }
+
+      // Pass 2: If no heading has crossed the trigger (e.g. very top of page),
+      // but we're scrolled at least a little, pick the first heading that's visible
+      if (!currentHeadingId) {
+        for (let i = 0; i < headingElements.length; i++) {
+          const h = headingElements[i] as HTMLElement;
+          const headingTop = h.getBoundingClientRect().top - containerRect.top;
+          if (headingTop >= 0 && headingTop <= containerRect.height) {
+            currentHeadingId = h.id;
+            break;
+          }
+        }
+      }
+
+      if (currentHeadingId && currentHeadingId !== activeSlug) {
+        activeSlug = currentHeadingId;
+        updateActiveHeading();
+      }
+    };
+
+    scrollContainer.addEventListener('scroll', syncActiveHeading, { passive: true });
+    syncActiveHeading();
+  }
+</script>

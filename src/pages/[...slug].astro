@@ -1,0 +1,193 @@
+---
+import { getCollection, render } from 'astro:content';
+import { getNavigationTree, getFolderMeta } from '../lib/navigation';
+import RootLayout from '../layouts/RootLayout.astro';
+import Card from '../components/Card.astro';
+import Icon from '../components/Icon.astro';
+import { getRelativeTime, formatAbsoluteDate } from '../lib/date';
+
+// 1. Compute static paths for every folder and article in the wiki portal
+export async function getStaticPaths() {
+  const articles = await getCollection('wiki');
+  const navTree = await getNavigationTree();
+  const paths: any[] = [];
+
+  // 1a. Generate paths for all articles
+  articles.forEach((article) => {
+    paths.push({
+      params: { slug: article.id },
+      props: { type: 'article', entry: article }
+    });
+  });
+
+  // Helper to recursively locate a folder's children nodes within the tree
+  const findFolderChildren = (nodeList: any[], folderPath: string): any[] => {
+    for (const node of nodeList) {
+      if (node.isFolder) {
+        const cleanNodePath = node.path.replace(/^\//, '');
+        if (cleanNodePath === folderPath) {
+          return node.children || [];
+        }
+        const found = findFolderChildren(node.children || [], folderPath);
+        if (found.length > 0) return found;
+      }
+    }
+    return [];
+  };
+
+  // 1b. Identify unique folder paths and generate paths for them
+  const folderPaths = new Set<string>();
+  articles.forEach((article) => {
+    const parts = article.id.split('/');
+    for (let i = 0; i < parts.length - 1; i++) {
+      folderPaths.add(parts.slice(0, i + 1).join('/'));
+    }
+  });
+
+  folderPaths.forEach((folderPath) => {
+    const meta = getFolderMeta(folderPath);
+    const folderName = folderPath.split('/').pop() || '';
+    const fallbackTitle = folderName
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    const children = findFolderChildren(navTree, folderPath);
+
+    paths.push({
+      params: { slug: folderPath },
+      props: {
+        type: 'folder',
+        title: meta.title || fallbackTitle,
+        description: meta.description || `Collection of articles under ${meta.title || fallbackTitle}`,
+        icon: meta.icon || 'folder',
+        children
+      }
+    });
+  });
+
+  return paths;
+}
+
+const { slug } = Astro.params;
+const props = Astro.props;
+const currentPath = `/${slug}`;
+
+// Helper to format date
+const formatDate = (dateValue: Date | string) => {
+  return formatAbsoluteDate(dateValue);
+};
+---
+
+{props.type === 'article' ? (
+  (() => {
+    const entry = props.entry;
+    return render(entry).then(({ Content, headings }) => (
+      <RootLayout 
+        title={entry.data.title} 
+        description={entry.data.description} 
+        headings={headings}
+        currentPath={currentPath}
+      >
+        <!-- Header info: Title, description, date and tags -->
+        <div class="article-header-meta" style="margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.5rem;">
+          <h1 style="border: none; margin-bottom: 0.5rem; padding: 0;">{entry.data.title}</h1>
+          
+          {entry.data.description && (
+            <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+              {entry.data.description}
+            </p>
+          )}
+
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+            {entry.data.date && (
+              <span 
+                data-tooltip={formatAbsoluteDate(entry.data.date)} 
+                style="display: flex; align-items: center; gap: 0.3rem; margin-right: 0.5rem; cursor: default; border-bottom: 1px dotted var(--text-muted);"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                {getRelativeTime(entry.data.date)}
+              </span>
+            )}
+            
+            {entry.data.tags && entry.data.tags.map((tag: string) => (
+              <span class="tag-badge">{tag}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Rendered markdown node -->
+        <Content />
+
+        <!-- Lazy-load Mermaid flowcharts -->
+        <script>
+          const initMermaid = async () => {
+            if (document.querySelector('.mermaid')) {
+              try {
+                const { default: mermaid } = await import('mermaid');
+                mermaid.initialize({
+                  startOnLoad: false,
+                  theme: 'dark',
+                  securityLevel: 'loose',
+                  htmlLabels: true,
+                  themeVariables: {
+                    background: '#0c0812',
+                    primaryColor: '#ff7e47',
+                    primaryTextColor: '#f3f4f6',
+                    lineColor: '#e63946'
+                  }
+                });
+                await mermaid.run({
+                  nodes: document.querySelectorAll('.mermaid')
+                });
+              } catch (err) {
+                console.error('Failed to render Mermaid diagrams:', err);
+              }
+            }
+          };
+          initMermaid();
+        </script>
+      </RootLayout>
+    ));
+  })()
+) : (
+  <RootLayout 
+    title={props.title} 
+    description={props.description}
+    currentPath={currentPath}
+  >
+    <!-- Folder landing page title -->
+    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+      <Icon name={props.icon || 'folder'} size={32} class="folder-header-icon" />
+      <h1 style="border: none; margin: 0; padding: 0; font-size: 2rem; line-height: 1;">{props.title}</h1>
+    </div>
+    
+    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 700px; line-height: 1.6;">
+      {props.description}
+    </p>
+
+    <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 2rem 0;" />
+
+    <!-- Card layout of child folders and articles -->
+    <div style="margin-bottom: 1rem;">
+      <h2 style="font-size: 1.25rem; margin-bottom: 1.25rem; color: var(--text-secondary);">Contents</h2>
+      
+      {props.children.length === 0 ? (
+        <p style="color: var(--text-muted); font-style: italic;">This directory is currently empty.</p>
+      ) : (
+        <div class="card-grid">
+          {props.children.map((child: any) => (
+            <Card 
+              title={child.title}
+              description={child.description}
+              path={child.path}
+              isFolder={child.isFolder}
+              icon={child.icon}
+              tags={child.tags}
+              date={child.date}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  </RootLayout>
+)}

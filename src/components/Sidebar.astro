@@ -1,0 +1,366 @@
+---
+import { getNavigationTree } from '../lib/navigation';
+import SidebarNode from './SidebarNode.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const navTree = await getNavigationTree();
+---
+
+<aside class="app-sidebar">
+  <!-- Scrollable Nav List -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      {navTree.map((node, index) => (
+        <SidebarNode 
+          node={node} 
+          depth={0} 
+          currentPath={currentPath} 
+          parentHasNext={[]}
+          isLast={index === navTree.length - 1}
+        />
+      ))}
+    </ul>
+  </nav>
+  <!-- Floating Sidebar Toggle Button -->
+  <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Ctrl+,">
+    <svg class="icon-minimize" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    <svg class="icon-expand" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>
+  </button>
+</aside>
+
+<style>
+  .sidebar-nav {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: calc(var(--header-height) + 1.75rem) 0.75rem 2rem 1.25rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+
+  .nav-list::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    width: 2px;
+    background-color: var(--text-secondary);
+    transform: translateX(-50%);
+    top: -200px; /* Extends all the way up to the container's top boundary */
+    height: calc(200px + 15px);
+    pointer-events: none;
+  }
+
+  /* ==========================================================================
+     Directory Tree Column-Spacer Guides (Linux tree style)
+     ========================================================================== */
+  
+  :global(.tree-row) {
+    display: flex;
+    align-items: center;
+    height: 30px; /* Consistent height for neat tree grid alignment */
+    position: relative;
+    width: 100%;
+  }
+
+  :global(.tree-guide) {
+    display: block;
+    width: 20px; /* Increased to 20px to shift the line and make space on the right */
+    height: 30px; /* Explicit height matching the row height */
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Vertical line segments */
+  :global(.tree-guide.vertical)::after {
+    content: '';
+    position: absolute;
+    left: 13px; /* Vertical line center is at 13px from left */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--text-secondary);
+    transform: translateX(-50%);
+  }
+
+  /* Tee (intermediate branch) connectors */
+  :global(.tree-guide.tee)::after {
+    content: '';
+    position: absolute;
+    left: 13px; /* Vertical line center is at 13px from left */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--text-secondary);
+    transform: translateX(-50%);
+  }
+
+  :global(.tree-guide.tee)::before {
+    content: '';
+    position: absolute;
+    left: 13px; /* Start from center of the vertical line */
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background-color: var(--text-secondary);
+    transform: translateY(-50%);
+  }
+
+  /* Corner (last branch) connectors */
+  :global(.tree-guide.corner)::before {
+    content: '';
+    position: absolute;
+    left: 12px; /* Center of the 2px border-left aligns exactly with 13px vertical line */
+    right: 0;
+    top: 0;
+    height: calc(50% + 1px);
+    border-left: 2px solid var(--text-secondary);
+    border-bottom: 2px solid var(--text-secondary);
+    border-bottom-left-radius: 6px;
+    box-sizing: border-box;
+  }
+
+
+
+  /* General button and link styles */
+  :global(.folder-link), :global(.file-link) {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.4rem 0.35rem 0.4rem 6px !important; /* Left padding is exactly 6px, aligning logo center with the 13px guide line */
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    text-align: left;
+    white-space: nowrap;
+    overflow: visible;
+    height: 26px;
+    position: relative;
+    line-height: 1 !important;
+    margin: 2px 0 !important; /* Forces 2px top/bottom gap, centering exactly at 15px in 30px row */
+    align-self: center !important;
+  }
+
+  :global(.folder-link) {
+    padding-right: 28px !important; /* Prevent text overlap with folder toggle button */
+  }
+
+  :global(.folder-link:hover), :global(.file-link:hover) {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+  }
+
+  :global(.file-link.active) {
+    background: transparent !important;
+    border: none !important;
+    color: var(--sunset-orange) !important;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(255, 126, 71, 0.35);
+  }
+
+  :global(.folder-link.active) {
+    background: transparent !important;
+    border: none !important;
+    color: var(--sunset-magenta) !important;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(204, 41, 95, 0.35);
+  }
+
+  :global(.folder-toggle-btn) {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--text-muted);
+    transition: background-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+    background: transparent;
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Make unclickable when invisible */
+    z-index: 10;
+  }
+
+  /* Show toggle button only on row hover or focus */
+  :global(.tree-row:hover) :global(.folder-toggle-btn),
+  :global(.tree-row:focus-within) :global(.folder-toggle-btn) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  :global(.folder-toggle-btn:hover) {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+
+  :global(.folder-toggle-icon) {
+    transform: rotate(0deg);
+    transition: transform var(--transition-fast);
+    color: inherit;
+    flex-shrink: 0;
+  }
+
+  :global(.folder-item.collapsed) :global(.folder-toggle-icon) {
+    transform: rotate(-90deg);
+  }
+
+  :global(.folder-icon), :global(.file-icon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-right: 0.5rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  :global(.folder-icon) :global(svg), :global(.file-icon) :global(svg) {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  :global(.folder-icon) {
+    color: var(--accent-purple);
+  }
+
+  :global(.file-link.active .file-icon) {
+    color: var(--accent-cyan);
+  }
+
+  :global(.label) {
+    line-height: 1.2;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    flex: 1 1 auto;
+  }
+
+  :global(.folder-children-container) {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--transition-normal);
+  }
+
+  :global(.folder-item.collapsed) > :global(.folder-children-container) {
+    grid-template-rows: 0fr;
+  }
+
+  :global(.folder-children) {
+    list-style: none;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+</style>
+
+<script>
+  // Sync collapse classes from local storage and cleanup SSR blocking style
+  const syncSidebarClasses = () => {
+    try {
+      const states = JSON.parse(localStorage.getItem('sidebar-folder-states') || '{}');
+      document.querySelectorAll('.folder-item').forEach((item) => {
+        const folderId = item.getAttribute('data-folder-id');
+        if (folderId && states[folderId] === false) {
+          item.classList.add('collapsed');
+        }
+      });
+      
+      // Remove temporary SSR style overrides now that elements carry local classes
+      const tempStyles = document.getElementById('sidebar-temp-styles');
+      if (tempStyles) {
+        tempStyles.remove();
+      }
+
+      // Allow CSS transitions to proceed normally after initial state sync
+      setTimeout(() => {
+        document.documentElement.classList.remove('no-transition');
+      }, 50);
+    } catch (e) {
+      console.error('Failed to sync sidebar states:', e);
+    }
+  };
+  
+  // Execute sync immediately upon script mount
+  syncSidebarClasses();
+
+  // Folder Toggle Client Action
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.folder-toggle-btn');
+    if (!btn) return;
+    
+    // Ignore toggles when minimized
+    if (document.documentElement.classList.contains('sidebar-minimized')) {
+      return;
+    }
+    
+    const folderItem = btn.closest('.folder-item');
+    if (folderItem) {
+      const folderId = folderItem.getAttribute('data-folder-id');
+      const isCollapsed = folderItem.classList.toggle('collapsed');
+      
+      // Save state in localStorage
+      if (folderId) {
+        try {
+          const states = JSON.parse(localStorage.getItem('sidebar-folder-states') || '{}');
+          states[folderId] = !isCollapsed; // true if expanded, false if collapsed
+          localStorage.setItem('sidebar-folder-states', JSON.stringify(states));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  });
+
+  // Sidebar Minimize Action
+  const toggleBtn = document.getElementById('sidebar-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const isMinimized = document.documentElement.classList.toggle('sidebar-minimized');
+      localStorage.setItem('sidebar-minimized', isMinimized ? 'true' : 'false');
+      toggleBtn.blur(); // Blur the button to prevent :focus-within from keeping it visible when mouse leaves
+    });
+  }
+
+  // Keyboard shortcut to toggle sidebar: Ctrl+, or Ctrl+\ or Alt+B
+  window.addEventListener('keydown', (e) => {
+    const isCtrlComma = e.ctrlKey && (e.key === ',' || e.code === 'Comma');
+    const isCtrlBackslash = e.ctrlKey && (e.key === '\\' || e.code === 'Backslash');
+    const isAltB = e.altKey && (e.key === 'b' || e.key === 'B' || e.code === 'KeyB');
+
+    if (isCtrlComma || isCtrlBackslash || isAltB) {
+      e.preventDefault();
+      const isMinimized = document.documentElement.classList.toggle('sidebar-minimized');
+      localStorage.setItem('sidebar-minimized', isMinimized ? 'true' : 'false');
+      if (toggleBtn) {
+        toggleBtn.blur();
+      }
+    }
+  });
+
+</script>

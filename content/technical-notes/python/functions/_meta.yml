@@ -1,0 +1,4 @@
+title: Functions
+description: Advanced functional patterns, closures, higher-order functions, and decorators in Python.
+icon: functional
+order: 10

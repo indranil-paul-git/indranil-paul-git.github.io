@@ -1,0 +1,818 @@
+---
+// Build-time random generation of bokeh stars to avoid client-side script dependency
+const stars = Array.from({ length: 32 }, (_, i) => ({
+  size: Math.random() * 3 + 3, // 3px to 6px (smaller, delicate stars)
+  x: Math.random() * 100,
+  y: Math.random() * 75, // focus stars in the upper 75% of the sky
+  duration: Math.random() * 10 + 8, // 8s to 18s cycle
+  delay: Math.random() * -18, // Pre-warm phase
+  blur: Math.random() * 0.7 + 0.6, // 0.6px to 1.3px blur for soft dreamy edges
+}));
+---
+<!-- Ambient background wrapper -->
+<div class="bg-effects-layer" aria-hidden="true">
+
+  <!-- Glowing Bokeh Stars -->
+  <div class="bokeh-stars-container" id="bokeh-stars">
+    {stars.map((star) => (
+      <div
+        class="bokeh-star"
+        style={`width: ${star.size}px; height: ${star.size}px; left: ${star.x}%; top: ${star.y}%; animation-duration: ${star.duration}s; animation-delay: ${star.delay}s; filter: blur(${star.blur}px);`}
+      />
+    ))}
+  </div>
+  
+  <!-- Glowing sunset sun -->
+  <div class="sunset-sun"></div>
+  
+
+  <!-- Subtle networking animation canvas -->
+  <canvas id="bg-network-graph" class="bg-graph-canvas"></canvas>
+  
+  <!-- City Skyline Silhouette -->
+  <div class="skyline-container">
+    <!-- Far Layer (Very blurry, simple spires, dome, stepped towers, with glowing lights) -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-far-buildings">
+      <g class="skyline-buildings">
+        <!-- Stepped Tower 1 -->
+        <rect x="50" y="80" width="60" height="200" />
+        <rect x="60" y="50" width="40" height="30" />
+        <rect x="70" y="30" width="20" height="20" />
+        <rect x="77" y="0" width="6" height="30" />
+        <rect x="65" y="90" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="80" y="90" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="72" y="110" width="5" height="5" class="window-light" />
+        
+        <!-- Angled Roof Tower 1 -->
+        <polygon points="150,110 180,70 210,110 210,280 150,280" />
+        <rect x="177" y="30" width="6" height="40" />
+        
+        <!-- Broad Block -->
+        <rect x="250" y="100" width="70" height="180" />
+        <rect x="270" y="80" width="30" height="20" />
+        
+        <!-- Tall Needle Tower -->
+        <rect x="360" y="50" width="30" height="230" />
+        <rect x="372" y="-10" width="6" height="60" />
+        <rect x="372" y="70" width="4" height="8" class="window-light animate-flicker-3" />
+        <rect x="372" y="90" width="4" height="8" class="window-light animate-flicker-1" />
+        
+        <!-- Stepped Tower 2 -->
+        <rect x="430" y="90" width="55" height="190" />
+        <rect x="445" y="70" width="25" height="20" />
+        
+        <!-- Domed Tower -->
+        <rect x="520" y="90" width="60" height="190" />
+        <path d="M 520,90 Q 550,45 580,90 Z" />
+        <rect x="540" y="100" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="555" y="100" width="5" height="5" class="window-light animate-flicker-3" />
+        
+        <!-- Double Spire Tower -->
+        <rect x="630" y="60" width="50" height="220" />
+        <rect x="639" y="20" width="5" height="40" />
+        <rect x="665" y="20" width="5" height="40" />
+        
+        <!-- Stepped Tower 3 -->
+        <rect x="720" y="70" width="70" height="210" />
+        <rect x="740" y="45" width="30" height="25" />
+        <rect x="745" y="90" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="760" y="90" width="5" height="5" class="window-light" />
+        
+        <!-- Angled Roof Tower 2 -->
+        <polygon points="830,120 860,80 890,120 890,280 830,280" />
+        
+        <!-- Tall Tower -->
+        <rect x="940" y="40" width="40" height="240" />
+        <rect x="957" y="-15" width="6" height="55" />
+        <rect x="955" y="60" width="5" height="8" class="window-light animate-flicker-2" />
+        <rect x="955" y="80" width="5" height="8" class="window-light animate-flicker-3" />
+        
+        <!-- Wide Block -->
+        <rect x="1020" y="100" width="80" height="180" />
+        <rect x="1045" y="80" width="30" height="20" />
+        <rect x="1130" y="70" width="40" height="210" />
+      </g>
+
+    </svg>
+
+    <!-- Far Lights Layer -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-far-lights">
+      <!-- Warning Lights (Placed outside blurred buildings to remain sharp and visible) -->
+      <circle cx="80" cy="0" r="2.5" class="warning-light animate-flicker-1" />
+      <circle cx="180" cy="30" r="2.5" class="warning-light animate-flicker-2" />
+      <circle cx="375" cy="-10" r="2.5" class="warning-light animate-flicker-3" />
+      <circle cx="457.5" cy="70" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="550" cy="45" r="2.5" class="warning-light animate-flicker-2" />
+      <circle cx="641.5" cy="20" r="2" class="warning-light animate-flicker-2" />
+      <circle cx="667.5" cy="20" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="755" cy="45" r="2" class="warning-light animate-flicker-3" />
+      <circle cx="860" cy="80" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="960" cy="-15" r="2.5" class="warning-light animate-flicker-3" />
+      <circle cx="1060" cy="80" r="2" class="warning-light animate-flicker-2" />
+    </svg>
+
+    <!-- Mid Layer (Medium blur, Citigroup roofs, bridge connectors, with glowing lights) -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-mid-buildings">
+      <g class="skyline-buildings">
+        <!-- Angled tier building -->
+        <polygon points="30,80 70,80 90,110 90,280 30,280" />
+        <rect x="45" y="100" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="45" y="115" width="4" height="6" class="window-light" />
+        <rect x="45" y="130" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="65" y="110" width="4" height="6" class="window-light" />
+        <rect x="65" y="125" width="4" height="6" class="window-light animate-flicker-3" />
+        
+        <!-- Standard block -->
+        <rect x="110" y="110" width="50" height="170" />
+        
+        <!-- Stepped tower with diagonal top -->
+        <polygon points="180,90 220,60 230,60 230,280 180,280" />
+        <rect x="195" y="100" width="4" height="5" class="window-light" />
+        <rect x="205" y="100" width="4" height="5" class="window-light animate-flicker-2" />
+        <rect x="195" y="115" width="4" height="5" class="window-light animate-flicker-3" />
+        <rect x="215" y="115" width="4" height="5" class="window-light" />
+        <rect x="205" y="130" width="4" height="5" class="window-light animate-flicker-1" />
+        
+        <!-- High-tech twin towers with bridge connection -->
+        <rect x="280" y="80" width="22" height="200" />
+        <rect x="322" y="80" width="22" height="200" />
+        <rect x="280" y="100" width="64" height="12" /> <!-- Bridge -->
+        <rect x="288" y="40" width="6" height="40" />
+        <rect x="330" y="40" width="6" height="40" />
+        <rect x="288" y="90" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="288" y="110" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="288" y="130" width="4" height="6" class="window-light" />
+        <rect x="330" y="90" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="330" y="110" width="4" height="6" class="window-light" />
+        <rect x="330" y="130" width="4" height="6" class="window-light animate-flicker-3" />
+        
+        <!-- Broad stepped warehouse -->
+        <rect x="380" y="130" width="90" height="150" />
+        <rect x="400" y="115" width="50" height="15" />
+        
+        <!-- Tall Citigroup angled roof -->
+        <polygon points="500,100 550,55 550,280 500,280" />
+        <rect x="515" y="110" width="4" height="6" class="window-light" />
+        <rect x="530" y="110" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="515" y="125" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="530" y="125" width="4" height="6" class="window-light" />
+        <rect x="522" y="140" width="4" height="6" class="window-light animate-flicker-3" />
+        
+        <!-- Columnar block -->
+        <rect x="580" y="110" width="30" height="170" />
+        <rect x="615" y="95" width="35" height="185" />
+        <rect x="655" y="110" width="30" height="170" />
+        
+        <!-- Angled modern tier -->
+        <polygon points="710,75 750,75 770,105 770,280 710,280" />
+        <rect x="725" y="95" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="738" y="95" width="4" height="6" class="window-light" />
+        <rect x="725" y="115" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="750" y="115" width="4" height="6" class="window-light" />
+        <rect x="738" y="135" width="4" height="6" class="window-light animate-flicker-2" />
+        
+        <!-- Twin towers with bridge 2 -->
+        <rect x="810" y="90" width="20" height="190" />
+        <rect x="850" y="90" width="20" height="190" />
+        <rect x="810" y="110" width="60" height="10" /> <!-- Bridge -->
+        <rect x="817" y="100" width="4" height="5" class="window-light animate-flicker-1" />
+        <rect x="817" y="120" width="4" height="5" class="window-light" />
+        <rect x="857" y="100" width="4" height="5" class="window-light animate-flicker-2" />
+        <rect x="857" y="120" width="4" height="5" class="window-light animate-flicker-3" />
+        
+        <!-- Broad block -->
+        <rect x="900" y="120" width="80" height="160" />
+        
+        <!-- Tall Citigroup roof 2 -->
+        <polygon points="1010,100 1060,55 1060,280 1010,280" />
+        <rect x="1022" y="110" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="1035" y="110" width="4" height="6" class="window-light" />
+        <rect x="1022" y="130" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="1045" y="130" width="4" height="6" class="window-light animate-flicker-2" />
+        
+        <rect x="1100" y="110" width="50" height="170" />
+      </g>
+
+    </svg>
+
+    <!-- Mid Lights Layer -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-mid-lights">
+      <!-- Warning Lights (Placed outside blurred buildings to remain sharp and visible) -->
+      <circle cx="50" cy="80" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="225" cy="60" r="2" class="warning-light animate-flicker-2" />
+      <circle cx="291" cy="40" r="2" class="warning-light animate-flicker-3" />
+      <circle cx="333" cy="40" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="550" cy="55" r="2" class="warning-light animate-flicker-2" />
+      <circle cx="632.5" cy="95" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="730" cy="75" r="2" class="warning-light animate-flicker-3" />
+      <circle cx="820" cy="90" r="1.5" class="warning-light animate-flicker-2" />
+      <circle cx="860" cy="90" r="1.5" class="warning-light animate-flicker-3" />
+      <circle cx="1060" cy="55" r="2" class="warning-light animate-flicker-1" />
+    </svg>
+
+    <!-- Near Layer (Sharp/Soft blur, highly detailed, exhaust pipes, spires, window lights) -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-near-buildings">
+      <g class="skyline-buildings">
+        <!-- Industrial building with exhaust stacks (Building 1) -->
+        <rect x="5" y="150" width="50" height="130" />
+        <rect x="15" y="140" width="30" height="10" />
+        <rect x="20" y="105" width="4" height="35" />
+        <rect x="28" y="95" width="4" height="45" />
+        <rect x="36" y="115" width="4" height="25" />
+        <rect x="12" y="165" width="4" height="4" class="window-light" />
+        <rect x="12" y="175" width="4" height="4" class="window-light animate-flicker-2" />
+        
+        <!-- Stepped foreground block (Building 2) -->
+        <rect x="70" y="130" width="60" height="150" />
+        <rect x="85" y="115" width="30" height="15" />
+        <rect x="85" y="135" width="5" height="5" class="window-light" />
+        <rect x="95" y="135" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="105" y="135" width="5" height="5" class="window-light" />
+        <rect x="85" y="150" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="95" y="150" width="5" height="5" class="window-light" />
+        <rect x="105" y="150" width="5" height="5" class="window-light" />
+        <rect x="85" y="165" width="5" height="5" class="window-light" />
+        <rect x="105" y="165" width="5" height="5" class="window-light animate-flicker-3" />
+        
+        <!-- Stepped Terraced Complex (Building 3) -->
+        <rect x="150" y="150" width="65" height="130" />
+        <rect x="160" y="130" width="45" height="20" />
+        <rect x="172" y="110" width="20" height="20" />
+        <rect x="180" y="118" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="168" y="137" width="5" height="5" class="window-light" />
+        <rect x="180" y="137" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="192" y="137" width="5" height="5" class="window-light" />
+        <rect x="160" y="160" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="175" y="160" width="5" height="5" class="window-light" />
+        <rect x="190" y="160" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="202" y="160" width="5" height="5" class="window-light" />
+        <rect x="160" y="175" width="5" height="5" class="window-light" />
+        <rect x="190" y="175" width="5" height="5" class="window-light animate-flicker-1" />
+        
+        <!-- Angular office complex (Building 4) -->
+        <polygon points="240,125 300,125 320,150 320,280 240,280" />
+        <rect x="255" y="135" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="265" y="135" width="4" height="6" class="window-light" />
+        <rect x="275" y="135" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="285" y="135" width="4" height="6" class="window-light" />
+        <rect x="255" y="150" width="4" height="6" class="window-light" />
+        <rect x="265" y="150" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="275" y="150" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="285" y="150" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="255" y="165" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="275" y="165" width="4" height="6" class="window-light" />
+        
+        <!-- Observatory/Dome Building (Building 5) -->
+        <rect x="340" y="155" width="50" height="125" />
+        <path d="M 340,155 Q 365,125 390,155 Z" />
+        <rect x="364" y="125" width="2" height="30" />
+        <circle cx="352" cy="148" r="2.5" class="window-light" />
+        <circle cx="365" cy="145" r="2.5" class="window-light animate-flicker-1" />
+        <circle cx="378" cy="148" r="2.5" class="window-light" />
+        <rect x="350" y="165" width="8" height="4" class="window-light animate-flicker-2" />
+        <rect x="372" y="165" width="8" height="4" class="window-light" />
+        
+        <!-- Detailed spire block (Building 6) -->
+        <rect x="410" y="120" width="35" height="160" />
+        <polygon points="410,120 427,95 445,120" />
+        <rect x="426" y="75" width="2" height="20" />
+        <rect x="420" y="130" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="430" y="130" width="4" height="6" class="window-light" />
+        <rect x="420" y="145" width="4" height="6" class="window-light" />
+        <rect x="430" y="145" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="420" y="160" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="430" y="160" width="4" height="6" class="window-light" />
+
+        <!-- Broad office block (Building 7) -->
+        <rect x="470" y="140" width="80" height="140" />
+        <rect x="485" y="150" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="500" y="150" width="5" height="5" class="window-light" />
+        <rect x="515" y="150" width="5" height="5" class="window-light" />
+        <rect x="530" y="150" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="485" y="165" width="5" height="5" class="window-light" />
+        <rect x="500" y="165" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="515" y="165" width="5" height="5" class="window-light" />
+        <rect x="530" y="165" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="485" y="180" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="500" y="180" width="5" height="5" class="window-light" />
+        <rect x="515" y="180" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="530" y="180" width="5" height="5" class="window-light" />
+
+        <!-- Diagonal Skyscraper with spire (Building 8) -->
+        <polygon points="570,115 605,80 620,80 620,280 570,280" />
+        <rect x="610" y="50" width="3" height="30" />
+        <rect x="585" y="130" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="585" y="145" width="4" height="6" class="window-light" />
+        <rect x="585" y="160" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="585" y="175" width="4" height="6" class="window-light" />
+        <rect x="600" y="110" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="600" y="125" width="4" height="6" class="window-light" />
+        <rect x="600" y="140" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="600" y="155" width="4" height="6" class="window-light" />
+        <rect x="600" y="170" width="4" height="6" class="window-light animate-flicker-2" />
+        
+        <!-- Stepped tower foreground (Building 9) -->
+        <rect x="640" y="110" width="45" height="170" />
+        <rect x="652" y="95" width="21" height="15" />
+        <rect x="650" y="120" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="660" y="120" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="670" y="120" width="4" height="6" class="window-light" />
+        <rect x="650" y="140" width="4" height="6" class="window-light" />
+        <rect x="660" y="140" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="670" y="140" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="650" y="160" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="660" y="160" width="4" height="6" class="window-light" />
+        <rect x="670" y="160" width="4" height="6" class="window-light animate-flicker-3" />
+
+        <!-- Double-Pyramid/Chevron-Roof Office (Building 10) -->
+        <rect x="705" y="135" width="50" height="145" />
+        <polygon points="705,135 718,120 730,135" />
+        <polygon points="730,135 743,120 755,135" />
+        <rect x="713" y="145" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="713" y="160" width="5" height="5" class="window-light" />
+        <rect x="713" y="175" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="737" y="145" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="737" y="160" width="5" height="5" class="window-light" />
+        <rect x="737" y="175" width="5" height="5" class="window-light animate-flicker-3" />
+
+        <!-- Communications Lattice Tower (Building 11) -->
+        <polygon points="772,280 788,100 792,100 808,280 804,280 790,110 776,280" />
+        <rect x="782" y="125" width="16" height="2" />
+        <rect x="779" y="150" width="22" height="2" />
+        <rect x="776" y="175" width="28" height="2" />
+        <rect x="789" y="70" width="2" height="30" />
+        <path d="M 780,105 Q 770,115 780,125 Z" />
+        <rect x="780" y="114" width="7" height="2" />
+        
+        <!-- Diagonal roof foreground (Building 12) -->
+        <polygon points="830,135 875,110 875,280 830,280" />
+        <rect x="845" y="130" width="5" height="5" class="window-light animate-flicker-1" />
+        <rect x="860" y="130" width="5" height="5" class="window-light" />
+        <rect x="845" y="150" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="860" y="150" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="845" y="170" width="5" height="5" class="window-light" />
+        <rect x="860" y="170" width="5" height="5" class="window-light animate-flicker-1" />
+
+        <!-- Stepped Art-Deco Block (Building 13) -->
+        <rect x="890" y="145" width="65" height="135" />
+        <rect x="898" y="130" width="49" height="15" />
+        <rect x="910" y="115" width="25" height="15" />
+        <rect x="921" y="95" width="3" height="20" />
+        <rect x="920" y="120" width="5" height="5" class="window-light" />
+        <rect x="908" y="135" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="928" y="135" width="4" height="6" class="window-light" />
+        <rect x="900" y="155" width="4" height="8" class="window-light animate-flicker-3" />
+        <rect x="910" y="155" width="4" height="8" class="window-light" />
+        <rect x="920" y="155" width="4" height="8" class="window-light animate-flicker-1" />
+        <rect x="930" y="155" width="4" height="8" class="window-light" />
+        <rect x="940" y="155" width="4" height="8" class="window-light animate-flicker-2" />
+        <rect x="900" y="170" width="4" height="8" class="window-light" />
+        <rect x="920" y="170" width="4" height="8" class="window-light animate-flicker-3" />
+        <rect x="940" y="170" width="4" height="8" class="window-light" />
+        
+        <!-- Detailed spire block 2 (Building 14) -->
+        <rect x="970" y="120" width="35" height="160" />
+        <polygon points="970,120 987,95 1005,120" />
+        <rect x="986" y="80" width="2" height="15" />
+        <rect x="980" y="130" width="5" height="5" class="window-light animate-flicker-3" />
+        <rect x="990" y="130" width="5" height="5" class="window-light" />
+        <rect x="980" y="150" width="5" height="5" class="window-light" />
+        <rect x="990" y="150" width="5" height="5" class="window-light animate-flicker-2" />
+        <rect x="985" y="170" width="5" height="5" class="window-light animate-flicker-1" />
+        
+        <!-- Stepped tower foreground 2 (Building 15) -->
+        <rect x="1020" y="110" width="45" height="170" />
+        <rect x="1030" y="125" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="1040" y="125" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="1030" y="145" width="4" height="6" class="window-light" />
+        <rect x="1040" y="145" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="1030" y="165" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="1040" y="165" width="4" height="6" class="window-light" />
+
+        <!-- Cylindrical Tower with Conical Roof (Building 16) -->
+        <rect x="1080" y="135" width="50" height="145" />
+        <polygon points="1080,135 1105,115 1130,135" />
+        <rect x="1104" y="105" width="2" height="10" />
+        <rect x="1090" y="145" width="5" height="4" class="window-light animate-flicker-1" />
+        <rect x="1102" y="144" width="6" height="4" class="window-light" />
+        <rect x="1115" y="145" width="5" height="4" class="window-light animate-flicker-2" />
+        <rect x="1090" y="160" width="5" height="4" class="window-light" />
+        <rect x="1102" y="159" width="6" height="4" class="window-light animate-flicker-3" />
+        <rect x="1115" y="160" width="5" height="4" class="window-light" />
+        <rect x="1090" y="175" width="5" height="4" class="window-light animate-flicker-2" />
+        <rect x="1102" y="174" width="6" height="4" class="window-light animate-flicker-1" />
+        <rect x="1115" y="175" width="5" height="4" class="window-light" />
+
+        <!-- Corporate Tower with diagonal roof slice (Building 17) -->
+        <polygon points="1140,115 1180,95 1195,95 1195,280 1140,280" />
+        <rect x="1185" y="65" width="2" height="30" />
+        <rect x="1150" y="125" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="1150" y="140" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="1150" y="155" width="4" height="6" class="window-light" />
+        <rect x="1150" y="170" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="1162" y="120" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="1162" y="135" width="4" height="6" class="window-light" />
+        <rect x="1162" y="150" width="4" height="6" class="window-light animate-flicker-1" />
+        <rect x="1162" y="165" width="4" height="6" class="window-light" />
+        <rect x="1174" y="115" width="4" height="6" class="window-light animate-flicker-3" />
+        <rect x="1174" y="130" width="4" height="6" class="window-light" />
+        <rect x="1174" y="145" width="4" height="6" class="window-light animate-flicker-2" />
+        <rect x="1174" y="160" width="4" height="6" class="window-light" />
+      </g>
+
+    </svg>
+
+    <!-- Near Lights Layer -->
+    <svg viewBox="0 0 1200 280" preserveAspectRatio="none" class="skyline-svg skyline-near-lights">
+      <!-- Warning Lights (Placed outside blurred buildings to remain sharp and visible) -->
+      <circle cx="22" cy="103" r="2" class="warning-light animate-flicker-3" />
+      <circle cx="30" cy="93" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="38" cy="113" r="2" class="warning-light animate-flicker-2" />
+      <circle cx="365" cy="123" r="1.5" class="warning-light animate-flicker-3" />
+      <circle cx="427" cy="73" r="1.5" class="warning-light animate-flicker-2" />
+      <circle cx="611.5" cy="48" r="2" class="warning-light animate-flicker-1" />
+      <circle cx="790" cy="68" r="2.5" class="warning-light animate-flicker-3" />
+      <circle cx="790" cy="115" r="2.5" class="warning-light animate-flicker-1" />
+      <circle cx="790" cy="140" r="2" class="warning-light animate-flicker-2" />
+      <circle cx="922.5" cy="93" r="1.5" class="warning-light animate-flicker-2" />
+      <circle cx="987" cy="78" r="1.5" class="warning-light animate-flicker-1" />
+      <circle cx="1105" cy="103" r="1.5" class="warning-light animate-flicker-3" />
+      <circle cx="1186" cy="63" r="2" class="warning-light animate-flicker-2" />
+    </svg>
+  </div>
+</div>
+
+<style>
+  .sunset-sun {
+    position: absolute;
+    bottom: -150px;
+    left: 45%;
+    transform: translateX(-50%);
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, var(--sun-glow-inner) 0%, var(--sun-glow-outer) 55%, transparent 80%);
+    filter: blur(50px);
+    pointer-events: none;
+    z-index: 2;
+    will-change: transform;
+  }
+
+  .skyline-container {
+    position: absolute;
+    bottom: -11.5vw; /* Dynamic underground offset that scales with viewport width */
+    left: 0;
+    width: 100%;
+    height: 35vw; /* Dynamic height that scales with viewport width to preserve aspect ratio */
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .skyline-container {
+      height: 270px;
+      bottom: -90px;
+    }
+  }
+
+  .skyline-svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block; /* Eliminate inline-element vertical baseline spacing */
+    overflow: visible !important; /* Prevent warning lights and glows from clipping at SVG borders */
+  }
+
+  .skyline-far-buildings,
+  .skyline-far-lights {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 84%;
+    will-change: transform;
+  }
+  .skyline-far-buildings {
+    z-index: 1;
+    opacity: 0.6;
+  }
+  .skyline-far-buildings .skyline-buildings {
+    filter: blur(8px);
+  }
+  .skyline-far-lights {
+    z-index: 2;
+  }
+  .skyline-far-lights .warning-light {
+    opacity: 0.3;
+    filter: drop-shadow(0 0 1px var(--warning-light-glow)) blur(3.8px);
+  }
+
+  .skyline-far-buildings rect:not(.window-light),
+  .skyline-far-buildings polygon,
+  .skyline-far-buildings path,
+  .skyline-far-buildings circle:not(.window-light):not(.warning-light) {
+    fill: var(--skyline-far-fill) !important; /* Sunset wine/maroon */
+    stroke: none !important;
+  }
+
+  .skyline-mid-buildings,
+  .skyline-mid-lights {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 89%; /* Adjusted from 85% to maintain same visible height after container extension */
+    will-change: transform;
+  }
+  .skyline-mid-buildings {
+    z-index: 3;
+    opacity: 0.7;
+  }
+  .skyline-mid-buildings .skyline-buildings {
+    filter: blur(4.5px);
+  }
+  .skyline-mid-lights {
+    z-index: 4;
+  }
+  .skyline-mid-lights .warning-light {
+    opacity: 0.42;
+    filter: drop-shadow(0 0 2px var(--warning-light-glow)) blur(2.0px);
+  }
+  
+  .skyline-mid-buildings rect:not(.window-light),
+  .skyline-mid-buildings polygon,
+  .skyline-mid-buildings path,
+  .skyline-mid-buildings circle:not(.window-light):not(.warning-light) {
+    fill: var(--skyline-mid-fill) !important; /* Slightly darker shade of sunset wine/maroon */
+    stroke: none !important;
+  }
+
+  .skyline-near-buildings,
+  .skyline-near-lights {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 79%; /* Adjusted from 70% to maintain same visible height after container extension */
+    will-change: transform;
+  }
+  .skyline-near-buildings {
+    z-index: 5;
+    opacity: 0.98;
+  }
+  .skyline-near-buildings .skyline-buildings {
+    filter: blur(3.8px);
+  }
+  .skyline-near-lights {
+    z-index: 6;
+  }
+  .skyline-near-lights .warning-light {
+    opacity: 0.58;
+    filter: drop-shadow(0 0 3px var(--warning-light-glow)) blur(0.8px);
+  }
+  
+  .skyline-near-buildings rect:not(.window-light),
+  .skyline-near-buildings polygon,
+  .skyline-near-buildings path,
+  .skyline-near-buildings circle:not(.window-light):not(.warning-light) {
+    fill: var(--skyline-near-fill) !important; /* Deepest warm burgundy/crimson-black */
+    stroke: none !important;
+  }
+
+  .window-light {
+    fill: var(--window-light-color); /* Enhanced glow orange-yellow */
+    opacity: 0.8;
+    filter: drop-shadow(0 0 3px var(--window-light-glow));
+  }
+
+  .warning-light {
+    fill: var(--warning-light-color); /* Bright neon red warning light */
+    opacity: 0.6;
+    filter: drop-shadow(0 0 3px var(--warning-light-glow)) blur(1px);
+  }
+
+  @keyframes flicker-slow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.35; }
+  }
+  @keyframes flicker-mid {
+    0%, 100% { opacity: 0.9; }
+    30% { opacity: 0.2; }
+    70% { opacity: 0.95; }
+  }
+  @keyframes flicker-fast {
+    0%, 100% { opacity: 0.85; }
+    45% { opacity: 0.15; }
+    85% { opacity: 1; }
+  }
+
+  .warning-light.animate-flicker-1 {
+    animation: flicker-slow 6s infinite ease-in-out;
+  }
+  .warning-light.animate-flicker-2 {
+    animation: flicker-mid 4.5s infinite ease-in-out;
+  }
+  .warning-light.animate-flicker-3 {
+    animation: flicker-fast 3.2s infinite ease-in-out;
+  }
+
+  /* Glowing Bokeh Stars */
+  .bokeh-stars-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 75%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .bokeh-star {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--bokeh-star-color) 0%, var(--bokeh-star-glow) 55%, transparent 100%);
+    box-shadow: 0 0 6px var(--bokeh-star-glow), 0 0 12px var(--bokeh-star-glow-outer);
+    opacity: 0;
+    animation: breathe-star 10s infinite alternate ease-in-out;
+    will-change: transform, opacity;
+  }
+
+  @keyframes breathe-star {
+    0% {
+      opacity: 0.12;
+      transform: scale(0.7);
+    }
+    50% {
+      opacity: 0.8; /* Twinkle up to a soft, warm glowing point */
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 0.2;
+      transform: scale(0.85);
+    }
+  }
+</style>
+
+<script>
+  // Canvas Graph Physics animation
+  const canvas = document.getElementById('bg-network-graph') as HTMLCanvasElement | null;
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      let width = 0;
+      let height = 0;
+      let animationFrameId: number;
+      let nodes: { x: number; y: number; vx: number; vy: number; radius: number }[] = [];
+      
+      const NODE_COUNT = 45;
+      const MAX_DIST = 130;
+      const SPEED_SCALE = 0.18; // Very slow, calm drifting motion
+
+      // Fetch network design tokens dynamically from CSS custom properties
+      const styles = window.getComputedStyle(document.documentElement);
+      const networkNodeColor = styles.getPropertyValue('--network-node-color').trim() || 'rgba(217, 93, 57, 0.5)';
+      const networkLineColorRaw = styles.getPropertyValue('--network-line-color').trim() || '232, 122, 49';
+
+      const resize = () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      };
+
+      const initNodes = () => {
+        nodes = [];
+        for (let i = 0; i < NODE_COUNT; i++) {
+          nodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() * 2 - 1) * SPEED_SCALE,
+            vy: (Math.random() * 2 - 1) * SPEED_SCALE,
+            radius: Math.random() * 1.5 + 1
+          });
+        }
+      };
+
+      const draw = () => {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw connections
+        for (let i = 0; i < nodes.length; i++) {
+          const n1 = nodes[i];
+          for (let j = i + 1; j < nodes.length; j++) {
+            const n2 = nodes[j];
+            const dx = n1.x - n2.x;
+            const dy = n1.y - n2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < MAX_DIST) {
+              const alpha = (1 - dist / MAX_DIST) * 0.95;
+              ctx.strokeStyle = `rgba(${networkLineColorRaw}, ${alpha * 0.14})`; // Sunset Gold connection
+              ctx.lineWidth = 0.8;
+              ctx.beginPath();
+              ctx.moveTo(n1.x, n1.y);
+              ctx.lineTo(n2.x, n2.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw and update nodes
+        nodes.forEach(node => {
+          ctx.fillStyle = networkNodeColor; // Sunset Coral nodes
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Move
+          node.x += node.vx;
+          node.y += node.vy;
+
+          // Wall bouncing
+          if (node.x < 0 || node.x > width) node.vx = -node.vx;
+          if (node.y < 0 || node.y > height) node.vy = -node.vy;
+        });
+      };
+
+      const loop = () => {
+        draw();
+        animationFrameId = requestAnimationFrame(loop);
+      };
+
+      // Set up resize handler and initialize
+      resize();
+      initNodes();
+      loop();
+
+      window.addEventListener('resize', () => {
+        resize();
+        initNodes();
+      });
+
+      // Pause loop when page is hidden to conserve system resources
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          cancelAnimationFrame(animationFrameId);
+        } else {
+          loop();
+        }
+      });
+    }
+  }
+
+  // --- Parallax scroll effect (normalized to scroll percentage) ---
+  {
+    const scrollContainer = document.querySelector('.app-scroll-container') as HTMLElement | null;
+    const bokehStars = document.getElementById('bokeh-stars') as HTMLElement | null;
+    const sunEl = document.querySelector('.sunset-sun') as HTMLElement | null;
+    
+    // Select both buildings and lights layers for parallax displacement
+    const skylineFarLayers = document.querySelectorAll('.skyline-far-buildings, .skyline-far-lights');
+    const skylineMidLayers = document.querySelectorAll('.skyline-mid-buildings, .skyline-mid-lights');
+    const skylineNearLayers = document.querySelectorAll('.skyline-near-buildings, .skyline-near-lights');
+
+    // Fixed max displacement in pixels — independent of page length.
+    // scrollPercent (0→1) * MAX = consistent displacement on any page.
+    const MAX_STARS  = 10;
+    const MAX_SUN    = 20;
+    const MAX_FAR    = 35;
+    const MAX_MID    = 55;
+    const MAX_NEAR   = 80;
+
+    if (scrollContainer) {
+      let ticking = false;
+
+      const applyParallax = () => {
+        const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        const pct = maxScroll > 0 ? scrollContainer.scrollTop / maxScroll : 0;
+
+        if (bokehStars) {
+          bokehStars.style.transform = `translate3d(0, ${pct * -MAX_STARS}px, 0)`;
+        }
+        if (sunEl) {
+          sunEl.style.transform = `translate3d(-50%, ${pct * -MAX_SUN}px, 0)`;
+        }
+        skylineFarLayers.forEach(el => {
+          (el as HTMLElement).style.transform = `translate3d(0, ${pct * -MAX_FAR}px, 0)`;
+        });
+        skylineMidLayers.forEach(el => {
+          (el as HTMLElement).style.transform = `translate3d(0, ${pct * -MAX_MID}px, 0)`;
+        });
+        skylineNearLayers.forEach(el => {
+          (el as HTMLElement).style.transform = `translate3d(0, ${pct * -MAX_NEAR}px, 0)`;
+        });
+
+        ticking = false;
+      };
+
+      scrollContainer.addEventListener('scroll', () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(applyParallax);
+        }
+      }, { passive: true });
+    }
+  }
+</script>

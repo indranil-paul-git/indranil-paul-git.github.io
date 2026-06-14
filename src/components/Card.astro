@@ -1,0 +1,72 @@
+---
+import Icon from './Icon.astro';
+import { getRelativeTime, formatAbsoluteDate } from '../lib/date';
+
+interface Props {
+  title: string;
+  description?: string;
+  path: string;
+  isFolder?: boolean;
+  icon?: string;
+  tags?: string[];
+  date?: Date | string;
+}
+
+const { title, description, path, isFolder = false, icon, tags = [], date } = Astro.props;
+
+const relativeDate = date ? getRelativeTime(date) : "";
+const absoluteDate = date ? formatAbsoluteDate(date) : "";
+const iconName = isFolder ? (icon || 'folder') : 'file';
+---
+
+<a href={path} class="glass-card-anchor">
+  <div class={`glass-card ${isFolder ? 'folder-card' : 'article-card'}`}>
+    <div>
+      <div class="glass-card-header">
+        <span class="glass-card-title">{title}</span>
+        <div class="glass-card-icon">
+          <Icon name={iconName} size={16} />
+        </div>
+      </div>
+      
+      {description && <p class="glass-card-desc">{description}</p>}
+    </div>
+
+    <!-- Meta / Tags Footer -->
+    {(!isFolder && (tags.length > 0 || relativeDate)) && (
+      <div class="glass-card-meta">
+        {relativeDate && (
+          <span 
+            data-tooltip={absoluteDate} 
+            style="margin-right: auto; cursor: default; border-bottom: 1px dotted var(--text-muted);"
+          >
+            {relativeDate}
+          </span>
+        )}
+        {tags.slice(0, 3).map(tag => (
+          <span class="tag-badge">{tag}</span>
+        ))}
+      </div>
+    )}
+
+    {isFolder && (
+      <div class="glass-card-meta" style="color: var(--accent-purple); font-weight: 500; font-size: 0.75rem;">
+        DIRECTORY
+      </div>
+    )}
+  </div>
+</a>
+
+<style>
+  .glass-card-anchor {
+    display: block;
+    height: 100%;
+  }
+
+  .glass-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+</style>

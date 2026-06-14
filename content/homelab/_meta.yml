@@ -1,0 +1,4 @@
+title: Homelab
+description: Self-hosted servers, Docker ingress architectures, and private mesh networking.
+icon: server
+order: 30

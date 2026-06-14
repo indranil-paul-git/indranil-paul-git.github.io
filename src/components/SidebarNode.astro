@@ -1,0 +1,72 @@
+---
+import Icon from './Icon.astro';
+import type { NavNode } from '../lib/navigation';
+
+interface Props {
+  node: NavNode;
+  depth: number;
+  currentPath: string;
+  parentHasNext?: boolean[];
+  isLast?: boolean;
+}
+
+const { 
+  node, 
+  depth, 
+  currentPath, 
+  parentHasNext = [], 
+  isLast = false 
+} = Astro.props;
+
+const folderId = `folder-${node.path.replace(/\//g, '-')}`;
+const iconKey = node.name.replace(/\.mdx?$/, '');
+
+// Pass down parent has next siblings for recursive children
+const childParentHasNext = [...parentHasNext, !isLast];
+---
+
+{node.isFolder ? (
+  <li class="folder-item" data-folder-id={folderId} data-depth={depth}>
+    <div class="tree-row">
+      {parentHasNext.map((hasNext) => (
+        <span class={`tree-guide ${hasNext ? 'vertical' : 'empty'}`}></span>
+      ))}
+      <span class={`tree-guide ${isLast ? 'corner' : 'tee'}`}></span>
+      
+      <a href={node.path} class={`folder-link ${currentPath === node.path ? 'active' : ''}`} title={node.title}>
+        <Icon name={node.icon || 'folder'} size={14} class="folder-icon" />
+        <span class="label">{node.title}</span>
+      </a>
+      <button class="folder-toggle-btn" data-folder-id={folderId} title="Toggle folder">
+        <Icon name="chevron" size={10} class="folder-toggle-icon" />
+      </button>
+    </div>
+    <div class="folder-children-container">
+      <ul class="folder-children">
+        {node.children && node.children.map((child, index) => (
+          <Astro.self 
+            node={child} 
+            depth={depth + 1} 
+            currentPath={currentPath} 
+            parentHasNext={childParentHasNext}
+            isLast={index === node.children.length - 1}
+          />
+        ))}
+      </ul>
+    </div>
+  </li>
+) : (
+  <li class="file-item" data-depth={depth}>
+    <div class="tree-row">
+      {parentHasNext.map((hasNext) => (
+        <span class={`tree-guide ${hasNext ? 'vertical' : 'empty'}`}></span>
+      ))}
+      <span class={`tree-guide ${isLast ? 'corner' : 'tee'}`}></span>
+      
+      <a href={node.path} class={`file-link ${currentPath === node.path ? 'active' : ''}`} title={node.title}>
+        {depth === 0 && <Icon name={iconKey} size={14} class="file-icon" />}
+        <span class="label">{node.title}</span>
+      </a>
+    </div>
+  </li>
+)}

@@ -1,0 +1,184 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { Search as SearchIcon } from '@lucide/astro';
+import { getSiteConfig } from '../lib/navigation';
+
+const config = getSiteConfig();
+---
+
+<RootLayout title="Wiki" currentPath="/">
+  <div class="dashboard-hero">
+    <div class="dashboard-logo-centered">
+      <div class="logo-text">
+        <span class="logo-prompt">{config.logoPrompt}</span>
+        <span class="logo-main">{config.logoMain}</span>
+      </div>
+      <span class="logo-secondary">{config.logoSecondary}</span>
+    </div>
+    
+    <div class="dashboard-search-wrapper">
+      <button class="dashboard-search-pill search-trigger-btn" title="Search portal (Ctrl+K)">
+        <div class="search-left">
+          <SearchIcon size={18} class="search-icon" />
+          <span class="search-placeholder">Search</span>
+        </div>
+        <kbd class="search-shortcut">Ctrl+K</kbd>
+      </button>
+    </div>
+  </div>
+</RootLayout>
+
+<style>
+  .dashboard-hero {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .dashboard-logo-centered {
+    position: absolute;
+    top: 48%; /* Optical vertical center adjustment */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    text-align: center;
+  }
+
+  .logo-text {
+    position: relative; /* Position context for prompt so it hangs on the left */
+    font-family: var(--font-heading);
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    display: inline-flex;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .logo-prompt {
+    position: absolute;
+    right: calc(100% + 0.6rem); /* Positioned exactly 0.6rem to the left of DevOS */
+    top: 0;
+    background: linear-gradient(135deg, #0047ab 0%, #ff4500 50%, #cc295f 100%); /* Cobalt Blue, Orangered, Deep Magenta */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px rgba(255, 126, 71, 0.35)) drop-shadow(0 0 35px rgba(255, 165, 0, 0.18)); /* Same glow as DevOS */
+    opacity: 0.6; /* 40% transparency */
+    font-family: var(--font-mono);
+    font-weight: 950; /* Even thicker font weight */
+    flex-shrink: 0;
+  }
+
+  .logo-main {
+    color: rgba(255, 250, 240, 0.7); /* Warm floral white with 30% transparency */
+    text-shadow: 0 0 15px rgba(255, 126, 71, 0.35), 
+                 0 0 35px rgba(255, 165, 0, 0.18); /* Subtle golden orange glow */
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .logo-secondary {
+    color: rgba(255, 245, 235, 0.65); /* Soft warm white with increased transparency */
+    font-weight: 400;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    margin-top: 1rem;
+    text-shadow: 0 0 10px rgba(255, 126, 71, 0.25), 
+                 0 0 20px rgba(230, 70, 70, 0.15); /* Warm sunset secondary glow */
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .dashboard-search-wrapper {
+    position: absolute;
+    top: 80%; /* Positioned at 80% of viewport height */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px; /* Narrower width */
+    max-width: calc(100vw - 4rem);
+    padding: 0 1rem;
+    box-sizing: border-box;
+    z-index: 10;
+  }
+
+  .dashboard-search-pill {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    border-radius: 9999px; /* Pill shape */
+    background: rgba(10, 15, 20, 0.15); /* More transparent */
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(28px); /* Much blurrier */
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-secondary);
+    transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .dashboard-search-pill:hover {
+    background: rgba(10, 15, 20, 0.3); /* Lighter on hover, maintaining glass aesthetics */
+    border-color: var(--sunset-orange);
+    color: var(--text-primary);
+    box-shadow: 0 0 25px rgba(255, 126, 71, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .search-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .search-icon {
+    color: var(--sunset-orange);
+    transition: transform var(--transition-fast);
+  }
+
+  .dashboard-search-pill:hover .search-icon {
+    transform: scale(1.18);
+  }
+
+  .search-placeholder {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+
+  .search-shortcut {
+    font-size: 0.65rem; /* Larger shortcut badge */
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.15rem 0.42rem; /* Adjusted padding */
+    border-radius: 5px; /* Adjusted border radius */
+    font-family: var(--font-mono);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .dashboard-search-pill:hover .search-shortcut {
+    color: var(--text-primary);
+    border-color: rgba(255, 126, 71, 0.3);
+  }
+
+
+
+  @media (max-width: 768px) {
+    .logo-text {
+      font-size: 3.5rem;
+    }
+    .logo-secondary {
+      font-size: 1.35rem;
+    }
+  }
+</style>
