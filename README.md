@@ -147,19 +147,18 @@ Pushes to the `main` or `master` branches automatically compile and deploy the s
 
 ---
 
-## Custom Domain & Automation
+## Custom Domain Configuration
 
 This site is hosted under the custom domain configured in `public/CNAME`. 
 
-### Automated Domain Updates
-To make domain changes completely hands-free, the deployment pipeline is automated:
-1. **GitHub Pages API**: The GitHub Actions workflow (`deploy.yml`) reads the domain name inside `public/CNAME` and makes a `PATCH` request to the GitHub API to update your repository's custom domain setting automatically on every push.
-2. **Astro Site URL Resolution**: `astro.config.mjs` reads the domain dynamically from `public/CNAME` at build time to configure sitemaps and canonical links.
+### Astro Site URL Resolution
+`astro.config.mjs` dynamically reads your domain name from `public/CNAME` at build time to configure sitemaps and canonical links automatically.
 
 ### How to Change Your Domain
 If you want to update the custom domain:
 1. Open [public/CNAME](file:///c:/Users/Indranil%20Paul/code/indranil-paul-git.github.io/public/CNAME) and replace the domain name with your new domain.
-2. Commit and push your changes to GitHub.
+2. Go to your repository settings (**Settings** -> **Pages**) and enter your new custom domain in the **Custom domain** box, then click **Save**.
+3. Commit and push your changes to GitHub.
 3. Update your DNS settings with your domain registrar:
    - **For an Apex Domain (e.g., `example.com`):** Point `A` records to GitHub Pages IPs:
      ```text
